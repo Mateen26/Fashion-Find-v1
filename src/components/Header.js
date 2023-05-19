@@ -6,30 +6,23 @@ import { setProducts } from '../Store/ProductSlice';
 const Header = () => {
   const dispatch = useDispatch();
   const [productName, setProductName] = useState('apple')
-  // const [products, setProducts] = useState([])
 
   const handleChange = (e) => {
     setProductName(e.target.value)
   }
-  const options = {
-    method: 'GET',
-    url: 'https://axesso-walmart-data-service.p.rapidapi.com/wlm/walmart-search-by-keyword',
-    params: {
-      keyword: productName,
-      page: '1'
-    },
-    headers: {
-      'X-RapidAPI-Key': process.env.REACT_APP_API_KEY,
-      'X-RapidAPI-Host': 'axesso-walmart-data-service.p.rapidapi.com'
+
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      search();
     }
   };
+
   const search = async () => {
 
     try {
-      const response = await axios.request(options);
-      console.log(response?.data, 'response data');
-      // setProducts(response?.data?.item?.props?.pageProps?.initialData?.searchResult?.itemStacks?.[0]?.items)
-      const productData = [response?.data?.item?.props?.pageProps?.initialData?.searchResult?.itemStacks?.[0]?.items]
+      const response = await axios.get(`https://dummyjson.com/products/search?q=${productName}`);
+      const productData = response?.data
       dispatch(setProducts(productData))
     } catch (error) {
       console.error(error);
@@ -89,7 +82,7 @@ const Header = () => {
             Ajooni
           </a>
           <div class="header-search-container">
-            <input onChange={handleChange} type="search" name="search" class="search-field" placeholder="Enter your product name..." />
+            <input onKeyPress={handleKeyPress} onChange={handleChange} type="search" name="search" class="search-field" placeholder="Enter your product name..." />
             <button onClick={search} class="search-btn">
               <ion-icon name="search-outline"></ion-icon>
             </button>
