@@ -1,36 +1,53 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '../Store/loaderSlicer';
+import Swal from 'sweetalert2';
 
 const HomePage = () => {
   const getProducts = useSelector((state) => state.products.products);
   console.log('getProducts: ', getProducts);
   const [productData, setProductData] = useState([])
-  
+  const dispatch = useDispatch()
+
   console.log('productData: ', productData);
 
   const products = []
+
+ 
   
   useEffect( () =>  {
     
     const getData = async () => {
-
+      dispatch(setLoading(true))
       const response = await axios.get('https://dummyjson.com/products/?limit=0');
      if(response?.status == 200)
      {
       const productData = response?.data
       setProductData(productData)
+       setTimeout(() => {
+         dispatch(setLoading(false))
+
+       }, 800);
+
     } 
+
     }
     getData()
   }, []);
 
   const handleClick = async (e) => {
-
+   
+    dispatch(setLoading(true))
     const response = await axios.get(`https://dummyjson.com/products/search?q=${e}`);
     if (response?.status == 200) {
       const productData = response?.data
       setProductData(productData)
+      setTimeout(() => {
+        dispatch(setLoading(false))
+        
+      }, 800);
+
     } 
     
   }
@@ -549,7 +566,11 @@ const HomePage = () => {
                   {getProducts?.products?.map((item, index) => (
                   <div class="showcase">
                     <div class="showcase-banner">
-                        <img src={item?.images?.[0]} alt="" width="300" class="product-img default" />
+                        <img src={item?.images?.[0] || `https://picsum.photos/202/300`}
+                          onError={(e) => {
+                            e.target.src = `https://picsum.photos/200/300`; 
+                          }}
+                        alt="" width="300" class="product-img default" />
                         <img src={item?.images?.[1]} alt="" width="300" class="product-img hover" />
                         <p class="showcase-badge">{item?.discountPercentage}%</p>
                       <div class="showcase-actions">
@@ -589,8 +610,8 @@ const HomePage = () => {
                 )  )   }
 
 
-                  {getProducts?.length < 1 && productData?.products?.map((item, index) => (
-                  <div class="showcase">
+                  {(getProducts?.length < 1 || getProducts?.total === 0) ? productData?.products?.map((item, index) => (
+                  <div class="showcase" key={index}>
                     <div class="showcase-banner">
                         <img src={item?.images?.[0]} alt="" width="300" class="product-img default" />
                         <img src={item?.images?.[1]} alt="" width="300" class="product-img hover" />
@@ -629,7 +650,7 @@ const HomePage = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                )) : ''}
                 
                 </div>
               </div>

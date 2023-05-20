@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setProducts } from '../Store/ProductSlice';
+import { setLoading } from '../Store/loaderSlicer';
+import Swal from 'sweetalert2';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -21,11 +23,30 @@ const Header = () => {
   const search = async () => {
 
     try {
+      dispatch(setLoading(true))
       const response = await axios.get(`https://dummyjson.com/products/search?q=${productName}`);
       const productData = response?.data
       dispatch(setProducts(productData))
+      setTimeout(() => {
+        dispatch(setLoading(false))
+
+      }, 800);
+      if (productData?.products?.length < 1) {
+        Swal.fire({
+          title: 'Oops!',
+          text: 'No Product Found',
+          imageUrl: 'https://placekitten.com/402/200',
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: 'Custom image',
+        })
+      }
     } catch (error) {
       console.error(error);
+      setTimeout(() => {
+        dispatch(setLoading(false))
+
+      }, 800);
     }
   }
 
@@ -37,13 +58,18 @@ const Header = () => {
         <div class="container">
           <ul class="header-social-container">
             <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-facebook"></ion-icon>
+              <a href="https://www.linkedin.com/in/mateen-rajput-193a50188" class="social-link" target="_blank">
+                <ion-icon name="logo-linkedin"></ion-icon>
               </a>
             </li>
             <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-twitter"></ion-icon>
+              <a href="https://github.com/Mateen26" class="social-link" target="_blank">
+                <ion-icon name="logo-github"></ion-icon>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.facebook.com/mateen.rajput.92/" class="social-link" target="_blank">
+                <ion-icon name="logo-facebook"></ion-icon>
               </a>
             </li>
             <li>
@@ -51,11 +77,7 @@ const Header = () => {
                 <ion-icon name="logo-instagram"></ion-icon>
               </a>
             </li>
-            <li>
-              <a href="#" class="social-link">
-                <ion-icon name="logo-linkedin"></ion-icon>
-              </a>
-            </li>
+           
           </ul>
           <div class="header-alert-news">
             <p>
@@ -79,7 +101,7 @@ const Header = () => {
       <div class="header-main">
         <div class="container">
           <a href="#" class="header-logo">
-            Ajooni
+            Fashion Find
           </a>
           <div class="header-search-container">
             <input onKeyPress={handleKeyPress} onChange={handleChange} type="search" name="search" class="search-field" placeholder="Enter your product name..." />
